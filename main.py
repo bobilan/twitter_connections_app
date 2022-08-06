@@ -3,11 +3,10 @@ import time
 import operator
 from collections import Counter
 import concurrent.futures
+import os
 
-
-Client = tweepy.Client(
-    "AAAAAAAAAAAAAAAAAAAAAHoZfgEAAAAAXkeh4kh%2FfkY54tJMFmDbdzcpLwg%3DzDo3VcIEE5c0UR39kbAEa37Y5oleIQzzUw3OQ2htC9BSYNpFTK"
-)
+TWITTER_BEARER_TOKEN = os.environ["BEARER_TOKEN"]
+Client = tweepy.Client(TWITTER_BEARER_TOKEN)
 
 
 def screen_name_to_id(screen_name):
@@ -52,14 +51,14 @@ def most_retweeted_accounts(searched_user_id):
         f"{searched_user_id}",
         max_results=100,
         expansions=["referenced_tweets.id.author_id"],
-        exclude=["replies"])
+        exclude=["replies"],
+    )
     retweeted_accounts = [
-            tweet.text.split(" ")[1][1:-1]
-            for tweet in paginator.flatten(limit=1000)  # change to 1000
-            if tweet["text"].startswith("RT ")
-            if tweet.text.split(" ")[1][1:-1] != USERS_SCREEN_NAME_INPUT
-
-        ]  # user's account is still present
+        tweet.text.split(" ")[1][1:-1]
+        for tweet in paginator.flatten(limit=1000)  # change to 1000
+        if tweet["text"].startswith("RT ")
+        if tweet.text.split(" ")[1][1:-1] != USERS_SCREEN_NAME_INPUT
+    ]  # user's account is still present
     return Counter(retweeted_accounts).most_common(15)
 
 
@@ -68,7 +67,12 @@ def most_replied_to_accounts(searched_user_id):
         Client.get_users_tweets,
         f"{searched_user_id}",
         max_results=100,
-        expansions=["referenced_tweets.id", "referenced_tweets.id.author_id", "in_reply_to_user_id"])
+        expansions=[
+            "referenced_tweets.id",
+            "referenced_tweets.id.author_id",
+            "in_reply_to_user_id",
+        ],
+    )
     replied_to_accounts = [
         tweet.in_reply_to_user_id
         for tweet in paginator.flatten(limit=1000)
@@ -111,7 +115,7 @@ def main():
 
 if __name__ == "__main__":
     start = time.time()
-    USERS_SCREEN_NAME_INPUT = "aerostar_pilot"
+    USERS_SCREEN_NAME_INPUT = "bo_bilan"  # put twitter handle to analyse
     SEARCHED_USER_ID = screen_name_to_id(USERS_SCREEN_NAME_INPUT)
 
     print(main())
@@ -120,8 +124,7 @@ if __name__ == "__main__":
     run_time = start - end
     print(f"Program ran:{run_time} sec")
 
-# TODO: async await
-# TODO: add to git
+
 # TODO: ' symbol infront tweepy.errors.BadRequest: 400 Bad Request The `username` query parameter value ['SkiddilyNFT] does not match ^[A-Za-z0-9_]{1,15}$
 # TODO:  Connection error    raise ConnectionError(e, request=request) multithreading
 # TODO:  Time ran out multithreading

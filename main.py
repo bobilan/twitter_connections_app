@@ -124,7 +124,3 @@ if __name__ == "__main__":
     run_time = start - end
     print(f"Program ran:{run_time} sec")
 
-
-# TODO: ' symbol infront tweepy.errors.BadRequest: 400 Bad Request The `username` query parameter value ['SkiddilyNFT] does not match ^[A-Za-z0-9_]{1,15}$
-# TODO:  Connection error    raise ConnectionError(e, request=request) multithreading
-# TODO:  Time ran out multithreading
